@@ -1,0 +1,27 @@
+.scrollerBar {
+	background-clip: content-box;
+	background-color: #DDD;
+	cursor: pointer;
+	padding-left: 4px;
+	position: absolute;
+	-webkit-transition: background-color 0.5s, width 0.25s, padding 0.25s;
+	        transition: background-color 0.5s, width 0.25s, padding 0.25s;
+	right: 0;	
+	width: 4px;
+}
+
+.scrollerContainer .scrollerBar:hover, .scrollerBar.hover {
+	background-color: black;
+	padding: 0;
+	width: 8px;
+}
+
+.scrollerContainer {
+	position: relative;
+
+	/* GPU Acceleration FTW */
+	transform: translate3d(0, 0, 0);
+	/* This makes the top and bottom edges fade out, but masks the effect from the scrollbar. */
+	-webkit-mask-image: linear-gradient(to bottom, transparent 0, white 10px, white calc(100% - 10px), transparent 100%),
+	                    linear-gradient(to right, transparent 0, transparent calc(100% - 14px), white calc(100% - 14px), white 100%);
+}

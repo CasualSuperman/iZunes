@@ -1,0 +1,309 @@
+@import "colors.less";
+
+.slider {
+	clear: left;
+	cursor: pointer;
+	padding: 4px 0;
+
+	.bg {
+		background-color: #DDD;
+		clear: left;
+		height: 5px;
+	}
+	.fill {
+		background-color: #666;
+		float: left;
+		height: 5px;
+		width: 0%;
+
+		.nub {
+			background-color: white;
+			float: right;
+			height: 5px;
+			width: 2px;
+		}
+	}
+
+	&:hover, &.seeking {
+		.nub {
+			background-color: black;
+			height: 11px;
+			position: relative;
+			top: -3px;
+			width: 3px;
+		}
+	}
+
+	&.seeking {
+		position: relative;
+
+		.nub {
+			top: 1px;
+			position: absolute;
+		}
+	}
+}
+
+.volume .nub {
+	width: 0;
+}
+
+.controls {
+	bottom: 10px;
+	font-family: "Segoe UI Symbol";
+	height: 67px;
+	position: fixed;
+	right: 75px;
+	text-align: center;
+	width: 86px;
+
+	.button {
+		cursor: pointer;
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+
+
+	}
+
+	.repeat {
+		fill: #888;
+		left: -24px;
+		top: calc(50% + 2px);
+
+		&.active, &.one .one-indicator {
+			fill: #F0F;
+
+			&:hover {
+				fill: #F8F;
+			}
+		}
+
+		.one-indicator {
+			fill: none;
+			font-family: "Noto Sans";
+		}
+
+		&:hover {
+			fill: black;
+		}
+	}
+
+	.bordered {
+		border-radius: 50%;
+		border: 2px solid #888;
+
+		&:hover {
+			border-color: black;
+		}
+
+		&.disabled {
+			border-color: #888;
+		}
+	}
+
+	.play, .pause {
+		font-size: 16px;
+		left: 50%;
+		line-height: 29px;
+		transform: translateY(-50%) translateX(-50%);
+		vertical-align: middle;
+	}
+
+	.next, .prev {
+		height: 20px;
+		width: 20px;
+	}
+
+	.prev {
+		left: 0;
+	}
+
+	.next {
+		right: 0;
+	}
+
+	.volume {
+		bottom: -10px;
+		height: 27px;
+		left: -20px;
+		position: absolute;
+		right: -20px;
+		text-align: center;
+
+		.text, .slideContainer {
+			bottom: 3px;
+			height: 20px;
+			left: 0;
+			position: absolute;
+			right: 0;
+			transition: opacity 0.25s, transform 0.25s;
+		}
+
+		.text {
+			font-family: "Segoe UI", "Noto Sans", "Open Sans", sans-serif;
+			font-size: 7pt;
+			left: 0;
+			right: 0;
+			text-transform: uppercase;
+
+			&::before {
+				content: "Volume ";
+			}
+		}
+
+		.mute {
+			bottom: 2px;
+			color: #666;
+			cursor: pointer;
+			left: -4px;
+			visibility: hidden;
+			width: 16px;
+
+			&::before, &::after {
+				bottom: 2px;
+				display: inline-block;
+				font-family: icons;
+				height: 11px;
+				position: relative;
+				visibility: visible;
+				width: 8px;
+				
+				-webkit-font-smoothing: antialiased;
+				-moz-osx-font-smoothing: grayscale;
+			}
+
+			&:hover {
+				&::before, &::after {
+					color: black;
+				}
+			}
+
+			&::before {
+				content: '\1f508';
+				font-size: 12px;
+			}
+
+			&::after {
+				content: '\e600';
+				font-size: 11px;
+				left: -2px;
+			}
+		}
+
+		.text2 {
+			bottom: 5px;
+			font-size: 9pt;
+			right: -4px;
+		}
+
+		.slider {
+			bottom: 6px;
+			left: 20px;
+			right: 20px;
+		}
+
+		&.hover .text,
+		.slideContainer {
+			opacity: 0;
+			transform: scale(0, 0);
+			z-index: 1;
+		}
+
+		.text,
+		&.hover .slideContainer {
+			opacity: 1;
+			transform: scale(1, 1);
+			z-index: 2;
+		}
+
+		.mute, .slider, .text2 {
+			position: absolute;
+		}
+
+		&.muted {
+			.text {
+				visibility: hidden;
+			}
+			.text::before {
+				content: "Muted";
+				left: 0;
+				position: absolute;
+				right: 0;
+				visibility: visible;
+			}
+
+			.mute, .mute:hover {
+				&::after, &::before {
+					color: #F0F;
+				}
+			}
+
+			.mute::after {
+				background-image: none;
+				content: "\e601";
+				left: 0px;
+			}
+		}
+	}
+
+	// ::after
+	& {
+		::after {
+			position: relative;
+		}
+		.play::after {
+			content: "\25B6";
+			left: 2px;
+			top: -1px;
+		}
+		.pause::after, .pause::before {
+			background-color: black;
+			content: "";
+			display: inline-block;
+			height: 15px;
+			position: relative;
+			top: 1px;
+			width: 3px;
+		}
+
+		.pause::before {
+			left: -3px;
+		}
+
+		.pause::after {
+			left: 2px;
+		}
+
+		.prev::after {
+			content: "\23ea";
+			left: -1px;
+		}
+
+		.next::after {
+			content: '\23e9';
+			right: -1px;
+		}
+
+		.next::after, .prev::after {
+			top: -2px;
+		}
+	}
+}
+
+.contextMenu {
+	border: 3px solid @body-bg;
+	box-shadow: 0 0 5px black;
+	position: absolute;
+
+	.option {
+		background-color: @body-bg;
+		cursor: pointer;
+		font-size: 12px;
+		padding: 1px 3px;
+
+		&:hover {
+			background-color: #DDD;
+		}
+	}
+}

@@ -1,0 +1,173 @@
+<?xml version="1.0" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="220" height="198" version="1.1" onload="init(evt)">
+	<defs>
+		<path id="base1.0" d="M 0,0 l 52,30 l -52,30 z"/>
+		<path id="base1" d="M 4.330927930243003 2.4986122674478857 L 47.669072069757 27.501387732552114 C 49.8345360348785 28.75069386627606 49.8345360348785 31.24930613372394 47.669072069757 32.49861226744788 L 4.330927930243003 57.50138773255211 C 2.1654639651215013 58.75069386627605 0 57.5 0 55 L 0 5 C 0 2.5 2.1654639651215013 1.2493061337239428 4.330927930243003 2.4986122674478857 Z"/>
+		<path id="base2.0" d="M 0,30 l 52,-30 l 0,60 z"/>
+		<path id="base2" d="M 5.197113516291603 27.001665279062536 L 46.8028864837084 2.998334720937463 C 49.401443241854196 1.4991673604687314 52 3 52 6 L 52 54 C 52 57 49.401443241854196 58.50083263953127 46.8028864837084 57.001665279062536 L 5.197113516291603 32.998334720937464 C 2.5985567581458016 31.499167360468732 2.5985567581458016 28.500832639531268 5.197113516291603 27.001665279062536 Z"/>
+	</defs>
+
+	<g fill="#F7F7F7" stroke="none" transform="translate(15 10) scale(0.5 0.5)">
+		<g class="overlap-x">
+			<use x="-55" y="-66" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="-55" y="-33" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="-55" y="0" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="-55" y="33" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="-55" y="66" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="-55" y="99" xlink:href="#base1" fill="#F2F2F2"/>
+			<use x="-55" y="132" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="-55" y="165" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="-55" y="198" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="-55" y="231" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="-55" y="264" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="-55" y="297" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="-55" y="330" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="-55" y="363" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="-55" y="396" xlink:href="#base2" fill="#F8F8F8"/>
+		</g>
+
+		<g>
+			<use x="0" y="-66" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="0" y="-33" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="0" y="0" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="0" y="33" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="0" y="66" xlink:href="#base1" fill="#F2F2F2"/>
+			<use x="0" y="99" xlink:href="#base2" fill="#F2F2F2"/>
+			<use x="0" y="132" xlink:href="#base1" fill="#F2F2F2"/>
+			<use x="0" y="165" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="0" y="198" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="0" y="231" xlink:href="#base2" fill="#F7F7F7"/>
+			<use x="0" y="264" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="0" y="297" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="0" y="330" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="0" y="363" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="0" y="396" xlink:href="#base1" fill="#F8F8F8"/>
+		</g>
+
+		<g>
+			<use x="55" y="-66" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="55" y="-33" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="55" y="0" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="55" y="33" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="55" y="66" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="55" y="99" xlink:href="#base1" fill="#F7F7F7"/>
+			<use x="55" y="132" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="55" y="165" xlink:href="#base1" fill="#F2F2F2"/>
+			<use x="55" y="198" xlink:href="#base2" fill="#DDD"/>
+			<use x="55" y="231" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="55" y="264" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="55" y="297" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="55" y="330" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="55" y="363" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="55" y="396" xlink:href="#base2" fill="#F8F8F8"/>
+		</g>
+
+		<g>
+			<use x="110" y="-66" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="110" y="-33" xlink:href="#base2" fill="#F2F2F2"/>
+			<use x="110" y="0" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="110" y="33" xlink:href="#base2" fill="#F7F7F7"/>
+			<use x="110" y="66" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="110" y="99" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="110" y="132" xlink:href="#base1" fill="#F2F2F2"/>
+			<use x="110" y="165" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="110" y="198" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="110" y="231" xlink:href="#base2" fill="#F7F7F7"/>
+			<use x="110" y="264" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="110" y="297" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="110" y="330" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="110" y="363" xlink:href="#base2" fill="#F2F2F2"/>
+			<use x="110" y="396" xlink:href="#base1" fill="#F8F8F8"/>
+		</g>
+
+		<g>
+			<use x="165" y="-66" xlink:href="#base2" fill="#DDD"/>
+			<use x="165" y="-33" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="165" y="0" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="165" y="33" xlink:href="#base1" fill="#DDD"/>
+			<use x="165" y="66" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="165" y="99" xlink:href="#base1" fill="#F2F2F2"/>
+			<use x="165" y="132" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="165" y="165" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="165" y="198" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="165" y="231" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="165" y="264" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="165" y="297" xlink:href="#base1" fill="#F7F7F7"/>
+			<use x="165" y="330" xlink:href="#base2" fill="#DDD"/>
+			<use x="165" y="363" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="165" y="396" xlink:href="#base2" fill="#F8F8F8"/>
+		</g>
+
+		<g>
+			<use x="220" y="-66" xlink:href="#base1" fill="#F7F7F7"/>
+			<use x="220" y="-33" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="220" y="0" xlink:href="#base1" fill="#F2F2F2"/>
+			<use x="220" y="33" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="220" y="66" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="220" y="99" xlink:href="#base2" fill="#DDD"/>
+			<use x="220" y="132" xlink:href="#base1" fill="#DDD"/>
+			<use x="220" y="165" xlink:href="#base2" fill="#F2F2F2"/>
+			<use x="220" y="198" xlink:href="#base1" fill="#F2F2F2"/>
+			<use x="220" y="231" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="220" y="264" xlink:href="#base1" fill="#F2F2F2"/>
+			<use x="220" y="297" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="220" y="330" xlink:href="#base1" fill="#F7F7F7"/>
+			<use x="220" y="363" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="220" y="396" xlink:href="#base1" fill="#F2F2F2"/>
+		</g>
+
+		<g>
+			<use x="275" y="-66" xlink:href="#base2" fill="#DDD"/>
+			<use x="275" y="-33" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="275" y="0" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="275" y="33" xlink:href="#base1" fill="#DDD"/>
+			<use x="275" y="66" xlink:href="#base2" fill="#DDD"/>
+			<use x="275" y="99" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="275" y="132" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="275" y="165" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="275" y="198" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="275" y="231" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="275" y="264" xlink:href="#base2" fill="#F2F2F2"/>
+			<use x="275" y="297" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="275" y="330" xlink:href="#base2" fill="#DDD"/>
+			<use x="275" y="363" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="275" y="396" xlink:href="#base2" fill="#F8F8F8"/>
+		</g>
+
+		<g>
+			<use x="330" y="-66" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="330" y="-33" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="330" y="0" xlink:href="#base1" fill="#DDD"/>
+			<use x="330" y="33" xlink:href="#base2" fill="#F2F2F2"/>
+			<use x="330" y="66" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="330" y="99" xlink:href="#base2" fill="#F7F7F7"/>
+			<use x="330" y="132" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="330" y="165" xlink:href="#base2" fill="#F7F7F7"/>
+			<use x="330" y="198" xlink:href="#base1" fill="#F2F2F2"/>
+			<use x="330" y="231" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="330" y="264" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="330" y="297" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="330" y="330" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="330" y="363" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="330" y="396" xlink:href="#base1" fill="#DDD"/>
+		</g>
+
+		<g class="overlap-x">
+			<use x="385" y="-66" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="385" y="-33" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="385" y="0" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="385" y="33" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="385" y="66" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="385" y="99" xlink:href="#base1" fill="#F2F2F2"/>
+			<use x="385" y="132" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="385" y="165" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="385" y="198" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="385" y="231" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="385" y="264" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="385" y="297" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="385" y="330" xlink:href="#base2" fill="#F8F8F8"/>
+			<use x="385" y="363" xlink:href="#base1" fill="#F8F8F8"/>
+			<use x="385" y="396" xlink:href="#base2" fill="#F8F8F8"/>
+		</g>
+	</g>
+</svg>

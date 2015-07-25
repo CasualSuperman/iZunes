@@ -1,0 +1,83 @@
+@album-size: 65px;
+
+.nowPlaying {
+	bottom: 60px;
+    height: 65px;
+	left: 50%;
+	position: fixed;
+    text-align: left;
+	transform: translateX(-50%);
+    width: 350px;
+
+	.albumPreview, .trackInfo {
+		display: inline-block;
+	}
+
+	.albumPreview {
+		float: left;
+		height: @album-size;
+		line-height: 61px;
+		width: @album-size;
+
+		img {
+			box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.7);
+			max-height: @album-size;
+			max-width: @album-size;
+			vertical-align: middle;
+		}
+	}
+
+	.trackInfo {
+		height: @album-size;
+		left: @album-size;
+		padding: 0 10px;
+		position: absolute;
+		right: 0;
+
+		.trackName {
+			float: left;
+			height: 26px;
+			max-width: 100%;
+			overflow: hidden;
+			white-space: nowrap;
+
+			&.hover {
+				height: auto;
+				margin-bottom: 1px;
+				max-width: none;
+				overflow: visible;
+				padding-top: 0;
+				position: relative;
+				top: -1px;
+			}
+		}
+	}
+	.progressBar {
+		.seek {
+			visibility: hidden;
+		}
+		&.seeking .seek {
+			visibility: visible;
+		}
+	}
+
+	.time {
+		height: 26px;
+		position: relative;
+
+		.elapsed, .remaining, .seek {
+			bottom: 0;
+			position: absolute;
+		}
+
+		.remaining {
+			right: 0;
+		}
+
+		.seek {
+			display: inline-block;
+			left: 50%;
+			transform: translateX(-50%);
+		}
+	}
+}

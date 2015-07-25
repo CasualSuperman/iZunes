@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+	<title>iZunes</title>
+	<meta charset="utf-8" />
+	<link href='http://fonts.googleapis.com/css?family=Noto+Sans:400,700' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="fonts/icons.css"/>
+	<link rel="stylesheet" href="lib/scroll/scroll.css" />
+	<link rel="shortcut icon" href="/favicon_32.png" sizes="32x32" />
+	<link rel="shortcut icon" href="/favicon_16.png" sizes="16x16" />
+
+	<!--
+	 <link rel="stylesheet" href="css/index.css" />
+	-->
+	<link rel="stylesheet/less" href="less/colors.less" />
+	<link rel="stylesheet/less" href="less/main.less" />
+	<link rel="stylesheet/less" href="less/controls.less" />
+	<link rel="stylesheet/less" href="less/nowPlaying.less" />
+	<script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.5.1/less.min.js"></script>
+	<!--
+	-->
+</head>
+<!--
+TODO:
+	Shuffle controls.
+	Now Playing Playlist view.
+	Searching/filtering/sorting.
+	Attach GainNode to solve viz issues & firefox volume controls.
+-->
+<body>
+	<!--svg style="display: none" id="svgViz">
+		<defs>
+			<filter id="svg_blur">
+				<feGaussianBlur stdDeviation="10"/>
+			</filter>
+		</defs>
+		<foreignObject width="100%" height="100%" filter="url(#svg_blur)">
+			<canvas id="srcViz"></canvas>
+		</foreignObject>
+	</svg-->
+	<ul id="header">
+		<li class="active" data-page="library">Library</li>
+		<li data-page="upload">Upload</li>
+	</ul>
+	<div class="page" id="library">
+		<ul id="artistList">
+		</ul>
+		<div class="divider" data-left="artistList" data-right="albumList"></div>
+		<ul id="albumList">
+		</ul>
+		<div class="divider" data-left="albumList" data-right="trackList"></div>
+		<ul id="trackList">
+		</ul>
+	</div>
+	<div class="page page-right" id="upload">
+		
+	</div>
+	<div id="footer">
+		<div class="nowPlaying">
+			<div class="albumPreview"><img src="http://casualsuperman.com/images/O_grey.svg"/></div>
+			<div class="trackInfo">
+				<div class="trackName"></div>
+				<div class="slider progressBar">
+					<div class="bg"><div class="fill"><div class="nub"></div></div></div>
+				</div>
+				<div class="time"><span class="elapsed"></span><span class="seek"></span><span class="remaining"></span></div>
+			</div>
+		</div>
+		<div class="controls">
+			<svg class="button repeat" width="18" height="20" version="1.1" xmlns="http://www.w3.org/2000/svg">
+				<path d="M 11.7,3   A 6.4,6.4 0 1 1 4.5,3 l 1.2,1.6 A 4.4 4.4 0 1 0 10.5,4.6"/>
+				<path d="M 2,2 l 5,0 l 0,5 z"/>
+				<text x="12" y="24" class="one-indicator">1</text>
+			</svg>
+			<div class="button bordered prev"></div>
+			<style>
+			svg .border {
+				fill: none;
+				stroke: #888;
+				stroke-width: 2;
+			}
+			svg:hover .border {
+				stroke: black;
+			}
+
+			svg.play .play-icon, svg.pause .pause-icon {
+				fill: black;
+			}
+			svg.pause .play-icon, svg.play .pause-icon {
+				fill: none;
+			}
+			</style>
+			<svg width="33" height="33" version="1.1" class="play button" xmlns="http://www.w3.org/2000/svg">
+				<path fill="black" d="M 0,0 z"/>
+				<circle cx="16.5" cy="16" r="14" class="border" />
+				<path d="M 12.5,9 l 11,7 l -11,7 z" class="play-icon"/>
+				<rect x="10.5" y="8.5" width="4" height="15" class="pause-icon"/>
+				<rect x="18.5" y="8.5" width="4" height="15" class="pause-icon"/>
+			</svg>
+			<!--div class="button bordered play">
+				<svg width="16" height="20" version="1.1" class="play-icon" xmlns="http://www.w3.org/2000/svg">
+					<path fill="black" d="M 3,3 l 12,8 l -12,8 z"/>
+				</svg>
+			</div-->
+			<div class="button bordered next"></div>
+			<div class="volume">
+				<div class="text"></div>
+				<div class="slideContainer">
+					<div class="mute"></div>
+					<div class="slider"><div class="bg"><div class="fill"><div class="nub"></div></div></div></div>
+					<div class="text2"></div>
+				</div>
+			</div>
+		</div>
+		<canvas id="visualization"></canvas>
+	</div>
+	<script>
+	document.createElement("template");
+	</script>
+	<div style="display: none" data-purpose="templating">
+		<template id="track-template">
+			<li><span class="num">{{num}}</span><span class="name">{{name}}</span></li>
+		</template>
+		<template id="artist-template">
+			<li class="artist">{{name}}</li>
+		</template>
+		<template id="album-template">
+			<li class="album">
+				<img src="{{coverImg}}" alt="{{artist.name}} - {{name}}"/>
+				<span class="name">{{name}}</span>
+				<span class="artist">{{artist.name}}</span>
+			</li>
+		</template>
+	</div>
+	<!--canvas id="visualization-shift"></canvas-->
+	<audio style="display: none"></audio>
+	<audio id="preload" preload="metadata" style="display: none"></audio>
+<script src="lib/Flint/flint.js"></script>
+<script>
+var resizeListeners = [];
+
+window.addEventListener("resize", function() {
+	var nextFunc = function(i) {
+		if (i >= resizeListeners.length) {
+			return;
+		}
+
+		resizeListeners[i]();
+
+		setTimeout(function() {
+			nextFunc(i+1);
+		}, 0);
+	};
+
+	nextFunc(0);
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+	[].forEach.call(document.querySelectorAll(".divider"), function(div) {
+		var leftElem = document.getElementById(div.dataset.left);
+		var rightElem = document.getElementById(div.dataset.right);
+		var startX = -1;
+		var startY = -1;
+
+		function startDividerDrag(e) {
+			document.body.addEventListener("mousemove", doDividerDrag);
+			document.body.addEventListener("mouseup", endDividerDrag);
+			startX = e.clientX;
+			startY = e.clientY;
+		//	console.log("Down", e);
+		}
+
+		function doDividerDrag(e) {
+			div.style.left = e.clientX + "px";
+			leftElem.style.width = leftElem.clientWidth - (startX - e.clientX) + "px";
+			rightElem.style.width = rightElem.clientWidth + (startX - e.clientX) + "px";
+			rightElem.style.left = rightElem.offsetLeft - (startX - e.clientX) + "px";
+
+			startX = e.clientX;
+
+		//	console.log("Moved", e);
+		}
+
+		function endDividerDrag(e) {
+			document.body.removeEventListener("mousemove", doDividerDrag);
+			document.body.removeEventListener("mouseup", endDividerDrag);
+		//	console.log("Up", e);
+		}
+
+		div.style.left = leftElem.offsetLeft + leftElem.clientWidth + "px";
+		div.addEventListener("mousedown", startDividerDrag);
+	});
+
+	resizeListeners.push(function() {
+		[].forEach.call(document.querySelectorAll(".divider"), function(div) {
+			var leftElem = document.getElementById(div.dataset.left);
+			var rightElem = document.getElementById(div.dataset.right);
+			div.style.left = leftElem.offsetLeft + leftElem.clientWidth + "px";
+		});
+	});
+});
+</script>
+<script>
+	function openPage(id) {
+		var page = document.getElementById(id);
+		if (!page) {
+			throw "Page " + id + " not found.";
+		}
+		if (page.classList.contains("page-left") || page.classList.contains("page-right")) {
+			document.querySelector("#header .active").classList.remove("active");
+			if (page.classList.contains("page-left")) {
+				page.classList.remove("page-left");
+				while (page.nextElementSibling) {
+					page = page.nextElementSibling;
+					page.classList.remove("page-left");
+					page.classList.add("page-right");
+				}
+			} else if (page.classList.contains("page-right")) {
+				while (page.previousElementSibling) {
+					page = page.previousElementSibling;
+					page.classList.remove("page-right");
+					page.classList.add("page-left");
+				}
+			}
+		}
+	}
+	[].forEach.call(document.getElementById("header").getElementsByTagName("li"), function(li) {
+		li.addEventListener("click", function() {
+			openPage(this.dataset["page"]);
+			this.classList.add("active");
+		});
+	});
+</script>
+<script>
+var trackTempl = Flint.create(document.getElementById("track-template").innerHTML);
+var oldTrackRender = trackTempl.render;
+trackTempl.render = (function(data) {
+	var oldNum = data.num;
+	if (data.num === 0) {
+		data.num = "";
+	}
+	var temp = oldTrackRender.call(trackTempl, data);
+	makeExpandable(temp.firstElementChild);
+	temp.firstElementChild.addEventListener("dblclick", function() {
+		startPlaying(data)
+	});
+	data.num = oldNum;
+	return temp;
+});
+var artistTempl = Flint.create(document.getElementById("artist-template").innerHTML);
+var albumTempl = Flint.create(document.getElementById("album-template").innerHTML);
+var oldRender = albumTempl.render;
+albumTempl.render = (function(data) {
+	var temp = oldRender.call(albumTempl, data);
+	makeExpandable(temp.querySelector(".name"));
+	makeExpandable(temp.querySelector(".artist"));
+	temp.firstElementChild.addEventListener("click", selectAlbum(data));
+	temp.firstElementChild.addEventListener("dblclick", playAlbum(data));
+	return temp;
+});
+</script>
+<script src="lib/scroll/scroll.js"></script>
+<script src="lib/slider/slider.js"></script>
+<script src="lib/elem/elem.js"></script>
+<script>
+function cloneStyledNode(elem) {
+	if (elem.nodeType !== 1) {
+		return elem.cloneNode(false);
+	}
+	var newElem = elem.cloneNode(false);
+	var css = window.getComputedStyle(elem, null);
+	if (css.cssText === "") {
+		for (var style in css) {
+			if (css.hasOwnProperty(style)) {
+				newElem.style[css[style]] = css[css[style]];
+			}
+		}
+	} else {
+		newElem.style.cssText = css.cssText;
+	}
+	for (var i = 0; i < elem.childNodes.length; i++) {
+		newElem.appendChild(cloneStyledNode(elem.childNodes[i]));
+	}
+	return newElem;
+}
+function makeExpandable1(elem) {
+	elem.addEventListener("mouseenter", function() {
+		var timeout = null;
+
+		var cancelHover = function() {
+			clearTimeout(timeout);
+			timeout = null;
+			elem.removeEventListener("mouseleave", cancelHover);
+		};
+		var stopHover = function() {
+			elem.classList.remove("hover");
+		};
+
+		if (elem.scrollWidth > elem.clientWidth) {
+			elem.addEventListener("mouseleave", cancelHover);
+
+			timeout = setTimeout(function() {
+				cancelHover();
+
+				elem.classList.add("hover");
+				elem.addEventListener("mouseleave", stopHover);
+			}, 500);
+		}
+	});
+}
+function makeExpandable(elem) {
+	elem.addEventListener("mouseenter", function() {
+		var timeout = null;
+		var hoverElem = null;
+
+		var cancelHover = function() {
+			clearTimeout(timeout);
+			timeout = null;
+			elem.removeEventListener("mouseleave", cancelHover);
+		};
+		var stopHover = function() {
+			hoverElem.parentNode.removeChild(hoverElem);
+			hoverElem.removeEventListener("mouseleave", stopHover);
+			hoverElem.removeEventListener("click", delegateClick);
+			hoverElem.removeEventListener("dblclick", delegateClick);
+			hoverElem.removeEventListener("scroll", delegateClick);
+			elem.style.visibility = "";
+			hoverElem = null;
+		};
+
+		var delegateClick = function(e) {
+			elem.dispatchEvent(new Event(e.type, e));
+		}
+
+		if (elem.scrollWidth > elem.clientWidth) {
+			elem.addEventListener("mouseleave", cancelHover);
+
+			timeout = setTimeout(function() {
+				cancelHover();
+
+				elem.classList.add("hover");
+				hoverElem = cloneStyledNode(elem);
+				document.body.appendChild(hoverElem);
+				var position = elem.getBoundingClientRect();
+				elem.classList.remove("hover");
+				hoverElem.style.position = "fixed";
+				hoverElem.style.top = position.top + "px";
+				hoverElem.style.left = position.left + "px";
+				hoverElem.style.width = "";
+				var hoverPosition = hoverElem.getBoundingClientRect();
+				if (hoverPosition.left + hoverElem.scrollWidth > window.innerWidth) {
+					hoverElem.style.left = position.left - (hoverPosition.left + hoverElem.scrollWidth - window.innerWidth) - 4 + "px";
+				}
+
+				elem.style.visibility = "hidden";
+				hoverElem.classList.add("expanded");
+
+				hoverElem.addEventListener("mouseleave", stopHover);
+				hoverElem.addEventListener("click", delegateClick);
+				hoverElem.addEventListener("dblclick", delegateClick);
+				hoverElem.addEventListener("scroll", delegateClick);
+			}, 500);
+		}
+	});
+}
+</script>
+<script>
+var img_ext = "jpg";
+(function() {
+	var webP = new Image();
+	webP.onload = webP.onerror = function () {
+		if (webP.height == 2) {
+			img_ext = "webp";
+		}
+		webP.onload = webP.onerror = undefined;
+		webP = null;
+	};
+	webP.src = 'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
+})()
+</script>
+<script>
+var artistCont = document.getElementById("artistList");
+var trackCont = document.getElementById("trackList");
+var albumCont = document.getElementById("albumList");
+
+([artistCont, trackCont, albumCont]).forEach(function(elem) {
+	makeScroller(elem);
+});
+
+var viz = document.getElementById("visualization-shift");
+var viz2 = document.getElementById("visualization");
+var audio = document.getElementsByTagName("audio")[0];
+
+var controls = {
+	repeat: document.querySelector(".controls .repeat"),
+	prev: document.querySelector(".controls .prev"),
+	play: document.querySelector(".controls .play"),
+	next: document.querySelector(".controls .next"),
+	
+	progress: document.querySelector(".progressBar"),
+	volume: {
+		container: document.querySelector(".volume"),
+		slider: document.querySelector(".volume .slider"),
+		text: document.querySelector(".volume .text"),
+		text2: document.querySelector(".volume .text2"),
+		mute: document.querySelector(".volume .mute"),
+	},
+};
+
+(function() {
+	controls.volume.mute.addEventListener("click", function() {
+		audio.muted = !audio.muted;
+		controls.volume.container.classList.toggle("muted");
+	});
+})();
+
+(function() {
+	var fill = controls.volume.slider.querySelector(".fill");
+	var timeout = null;
+	var hover = false;
+	var dragging = false;
+	var moveSlider = function(percent) {
+		fill.style.width = percent * 100 + "%";
+		audio.volume = percent;
+		controls.volume.text.textContent = Math.floor(percent * 100);
+		controls.volume.text2.textContent = Math.floor(percent * 100);
+	}
+	makeSlider(controls.volume.slider, function() {
+		dragging = true;
+	}, moveSlider, function(percent) {
+		moveSlider(percent);
+		dragging = false;
+		localStorage.setItem("volume", percent);
+		if (controls.volume.container.classList.contains("hover") && !hover) {
+			timeout = setTimeout(function() {
+				controls.volume.container.classList.remove("hover");
+			}, 500);
+		}
+	});
+	controls.volume.container.addEventListener("mouseenter", function() {
+		if (timeout) {
+			clearTimeout(timeout);
+			timeout = null;
+		}
+		controls.volume.container.classList.add("hover");
+		hover = true;
+	});
+	controls.volume.container.addEventListener("mouseleave", function() {
+		hover = false;
+		if (dragging === false) {
+			timeout = setTimeout(function() {
+				controls.volume.container.classList.remove("hover");
+			}, 500);
+		}
+	});
+	var vol = localStorage.getItem("volume");
+	if (vol === null) {
+		vol = 0.8;
+	}
+	moveSlider(vol);
+})();
+
+(function() {
+	var nub = controls.progress.querySelector(".nub");
+	var fill = controls.progress.querySelector(".fill");
+	var oldPosition = controls.progress.style.position;
+	function altUpdateNowPlaying() {
+		fill.style.width = audio.currentTime*100/audio.duration + "%";
+		nowPlayingInfo.elapsed.textContent = formatTime(audio.currentTime);
+	}
+
+	makeSlider(controls.progress, function() {
+		audio.removeEventListener("timeupdate", updateNowPlaying);	
+		audio.addEventListener("timeupdate", altUpdateNowPlaying);	
+		nowPlayingInfo.remaining.textContent = formatTime(audio.duration);
+		controls.progress.classList.add("seeking");
+		nowPlayingInfo.seeking.style.display = "";
+		nub.style.left = (audio.currentTime / audio.duration) * controls.progress.clientWidth + "px";
+	}, function(percent) {
+		nowPlayingInfo.seeking.textContent = formatTime(audio.duration * percent);
+		nub.style.left = controls.progress.clientWidth * percent + "px";
+	}, function(percent) {
+		audio.addEventListener("timeupdate", updateNowPlaying);	
+		audio.removeEventListener("timeupdate", altUpdateNowPlaying);	
+		controls.progress.classList.remove("seeking");
+		nowPlayingInfo.seeking.style.display = "none";
+		nub.style.left = "";
+		if (audio.readyState > 0) {
+			fill.style.width = percent * 100 + "%";
+			audio.currentTime = audio.duration * percent;
+		}
+	});
+})();
+
+(function() {
+	controls.repeat.addEventListener("click", function() {
+		switch(nowPlaying.repeat) {
+		case null:
+			nowPlaying.repeat = "all";
+			this.classList.add("active");
+			break;
+		case "all":
+			nowPlaying.repeat = "one";
+			this.classList.add("one");
+			break;
+		case "one":
+			nowPlaying.repeat = null;
+			this.classList.remove("active", "one");
+		}
+	});
+})();
+
+var nowPlayingInfo = {
+	coverImg: document.querySelector(".albumPreview img"),
+	progressBar: document.querySelector(".progressBar .fill"),
+	elapsed: document.querySelector(".time .elapsed"),
+	seeking: document.querySelector(".time .seek"),
+	remaining: document.querySelector(".time .remaining"),
+	trackName: document.querySelector(".trackInfo .trackName"),
+};
+
+makeExpandable(nowPlayingInfo.trackName);
+</script>
+<script src="js/zune_viz.js"></script>
+<script>
+function play(track) {
+	if (audio.src === track.URL()) {
+		audio.currentTime = 0;
+		audio.play();
+		return;
+	}
+	if (nowPlaying.song) {
+		nowPlaying.song.elem.classList.remove("playing");
+	}
+	nowPlayingInfo.coverImg.src = track.albumArt();
+	nowPlayingInfo.trackName.textContent = track.name;
+	track.elem.classList.add("playing");
+	nowPlaying.song = track;
+	audio.src = track.URL();
+	audio.play();
+	controls.play.classList.add("pause");
+	controls.play.classList.remove("play");
+	nowPlayingInfo.elapsed.textContent = formatTime(0);
+	nowPlayingInfo.progressBar.style.width = "0%";
+}
+
+function preload(track) {
+	document.getElementById("preload").src = track.URL();
+}
+</script>
+<script>
+var nowPlaying = {song: null, playlist:[], index: 0, shuffle: [], repeat: null};
+
+function shuffle() {
+	nowPlaying.shuffle = shuffleArray(nowPlaying.playlist.map(function(n, i) { return i; }));
+}
+
+function shuffleArray(array) {
+	for (var i = array.length - 1; i > 0; i--) {
+		var j = Math.floor(Math.random() * (i + 1));
+		var temp = array[i];
+		array[i] = array[j];
+		array[j] = temp;
+	}
+	return array;
+}
+
+function getSongByIndex(i) {
+	if (nowPlaying.shuffle.length > 0) {
+		i = nowPlaying.shuffle[i];
+	}
+	return nowPlaying.playlist[i];
+}
+
+function getNextSong() {
+	if (nowPlaying.index < nowPlaying.playlist.length - 1) {
+		return getSongByIndex(nowPlaying.index + 1);
+	}
+
+	return getSongByIndex(0);
+}
+
+nowPlaying.autoplay = function() {
+	if (nowPlaying.repeat === "one") {
+		return play(nowPlaying.song);
+	}
+
+	if (nowPlaying.index+1 === nowPlaying.playlist.length) {
+		nowPlaying.index = 0;
+		if (nowPlaying.repeat !== "all") {
+			controls.play.classList.remove("pause");
+			controls.play.classList.add("play");
+			/*play(getSongByIndex(0));
+			audio.pause();
+			nowPlayingInfo.progressBar.style.width = "100%";
+			*/return;
+		}
+	} else {
+		nowPlaying.index++;
+	}
+
+	play(getSongByIndex(nowPlaying.index));
+	preload(getNextSong());
+};
+
+nowPlaying.next = function() {
+	if (nowPlaying.index+1 === nowPlaying.playlist.length) {
+		nowPlaying.index = 0;
+	} else {
+		nowPlaying.index++;
+	}
+	play(getSongByIndex(nowPlaying.index));
+	preload(getNextSong());
+};
+
+nowPlaying.prev = function() {
+	toggleAudio();
+	if (nowPlaying.index === 0) {
+		nowPlaying.index = nowPlaying.playlist.length;
+	}
+	nowPlaying.index--;
+	play(getSongByIndex(nowPlaying.index));
+};
+
+controls.prev.addEventListener("click", function() {
+	if (audio.currentTime >= 2) {
+		audio.currentTime = 0;
+		return;
+	}
+	if (nowPlaying.index > 0) {
+		nowPlaying.index--;
+		play(getSongByIndex(nowPlaying.index));
+		return;
+	}
+	if (nowPlaying.repeat === null) {
+		audio.currentTime = 0;
+		return;
+	}
+	nowPlaying.index = nowPlaying.playlist.length - 1;
+	play(getSongByIndex(nowPlaying.index));
+});
+
+function playPause() {
+	controls.play.classList.toggle("play");
+	controls.play.classList.toggle("pause");
+	if (audio.paused) {
+		audio.play();
+	} else {
+		audio.pause();
+	}
+}
+
+controls.play.addEventListener("click", playPause);
+
+controls.next.addEventListener("click", nowPlaying.next);
+
+document.body.addEventListener("keydown", function(e) {
+	if (e.keyCode === 32) {
+		playPause();
+	}
+});
+</script>
+<script>
+var library = {songs: [], artists: [], albums: []};
+var selection = {artists: [], albums: [], songs: []};
+
+audio.addEventListener("ended", nowPlaying.autoplay);
+audio.addEventListener("timeupdate", updateNowPlaying);
+
+function startPlaying(track) {
+	nowPlaying.playlist = [];
+	nowPlaying.index = 0;
+	if (selection.albums.length === 0) {
+		nowPlaying.playlist = library.songs.slice();
+	} else {
+		selection.albums.forEach(function(album) {
+			nowPlaying.playlist = nowPlaying.playlist.concat(album.songs);
+		});
+	}
+	nowPlaying.index = nowPlaying.playlist.indexOf(track);
+	play(track);
+}
+
+function updateNowPlayingInfo() {
+	nowPlayingInfo.coverImg.src = nowPlaying.song.albumArt();
+	nowPlayingInfo.trackName.textContent = nowPlaying.song.name;
+}
+
+function updateSelection() {
+	[].forEach.call(albumCont.querySelectorAll(".selected"), function(elem) {
+		elem.classList.remove("selected");
+	});
+	[].forEach.call(trackCont.querySelectorAll("li"), function(li) {
+		li.parentNode.removeChild(li);
+	});
+	if (selection.albums.length > 0) {
+		trackCont.classList.toggle("listAll", selection.albums.length !== 1);
+		selection.albums.forEach(function(album) {
+			album.elem.classList.add("selected");
+			album.songs.forEach(function(song) {
+				trackCont.appendChild(song.elem);
+			});
+		});
+	} else {
+		trackCont.classList.add("listAll");
+		library.songs.forEach(function(song) {
+			trackCont.appendChild(song.elem);
+		});
+	}
+	return;
+	if (item === undefined) {
+		// Filter albums by artist.
+
+		// Filter tracks by album.
+		return;
+	}
+	if (item instanceof Album) {
+		selection.albums.push(item);
+	}
+}
+function makeUrl() {
+	return [].map.call(arguments, function(c) {
+		return encodeURIComponent(c.replace("/", "%2F"));
+	}).join("/");
+}
+function twoDigit(num) {
+	if (num < 10) {
+		return "0"+num;
+	}
+	return num;
+}
+function formatTime(secs) {
+	secs = Math.floor(secs);
+	var time = "";
+	if (secs < 60) {
+		return "0:" + twoDigit(secs);
+	}
+	time = ":" + twoDigit(secs%60);
+	var mins = Math.floor(secs / 60);
+	if (mins < 60) {
+		return mins + time;
+	}
+	time = ":" + twoDigit(mins%60) + time;
+	var hrs = Math.floor(mins / 60);
+	if (time < 24) {
+		return hrs + time;
+	}
+	time = twoDigit(hrs) + time;
+	var days = Math.floor(hrs/24);
+	if (days === 1) {
+		return "1 day, " + time;
+	}
+	return days + " days, " + time;
+}
+
+function updateNowPlaying() {
+	nowPlayingInfo.progressBar.style.width = audio.currentTime*100/audio.duration + "%";
+	nowPlayingInfo.elapsed.textContent = formatTime(audio.currentTime);
+	nowPlayingInfo.remaining.textContent = "-"+formatTime(audio.duration - audio.currentTime);
+}
+
+function playAlbum(album) {
+	return function(e) {
+		selection.albums = [album];
+		updateSelection(album);
+		startPlaying(album.songs[0]);
+		e.stopPropagation();
+	};
+}
+
+var lastSelectedAlbum = [];
+function selectAlbum(album) {
+	return function(e) {
+		if (e.ctrlKey) {
+			var index = selection.albums.indexOf(album);
+			if (index === -1) {
+				lastSelectedAlbum.push(album);
+				selection.albums.push(album);
+			} else {
+				if (lastSelectedAlbum.indexOf(album) !== -1) {
+					lastSelectedAlbum.splice(lastSelectedAlbum.indexOf(album), 1);
+				}
+				selection.albums.splice(index, 1);
+			}
+		} else if (e.shiftKey) {
+			var index = library.albums.indexOf(lastSelectedAlbum.slice(-1)[0]);
+			if (index !== -1) {
+				var targetIndex = library.albums.indexOf(album);
+				var start = Math.min(targetIndex, index);
+				var end = Math.max(targetIndex, index);
+				var albums = library.albums.slice(start, end+1);
+				albums.forEach(function(al) {
+					var index = selection.albums.indexOf(al);
+					if (index === -1) {
+						selection.albums.push(al);
+					}
+				});
+				if (lastSelectedAlbum.indexOf(album) !== -1) {
+					lastSelectedAlbum.splice(lastSelectedAlbum.indexOf(album), 1);
+				}
+			} else {
+				var index = selection.albums.indexOf(album);
+				if (index === -1) {
+					lastSelectedAlbum.push(album);
+					selection.albums.push(album);
+				}	
+			}
+		} else {
+			selection.albums = [album];
+			lastSelectedAlbum = [album];
+		}
+		updateSelection(album);
+		e.stopPropagation();
+	};
+}
+document.querySelector("#albumList").addEventListener("click", function(e) {
+	if (!e.ctrlKey && !e.shiftKey) {
+		selection.albums = [];
+		lastSelectedAlbum = [];
+		updateSelection();
+	}
+});
+	function Album(name, artist) {
+		this.name = name;
+		this.artist = artist;
+		this.songs = [];
+
+		if (name === "Unknown Album") {
+			this.coverImg = "http://casualsuperman.com/images/O_grey.svg";
+		} else {
+			this.coverImg = makeUrl("covers", artist.name, name + "_100." + img_ext);
+		}
+
+		this.elem =
+			/*
+			   Elem("li")
+				.className("album")
+				.append("img")
+					.attr("src", this.coverImg)
+					.attr("alt", artist.name + " - " + name)
+					.end()
+				.append("span")
+					.className("name")
+					.text(name)
+					.pass(makeExpandable)
+					.end()
+				.append("span")
+					.className("artist")
+					.text(artist.name)
+					.pass(makeExpandable)
+					.end()
+				.on("click", selectAlbum(this))
+				.on("dblclick", playAlbum(this))
+				.done();
+			/*/
+			  Elem("li")
+				.className("album")
+				.append(Elem("img").attr("src", this.coverImg).attr("alt", artist.name + " - " + name))
+				.append(Elem("span").className("name").text(name).pass(makeExpandable))
+				.append(Elem("span").className("artist").text(artist.name).pass(makeExpandable))
+				.on("click", selectAlbum(this))
+				.on("dblclick", playAlbum(this))
+				.done();
+			//*/
+	}
+	function Artist(name) {
+		this.name = name;
+		this.albums = [];
+		this.singles = [];
+
+		this.elem = Elem("li").className("artist").text(name).done();
+	}
+	function Song(num, name, artist, album, ext) {
+		album.songs.push(this);
+		this.num = num;
+		this.name = name;
+		this.artist = artist;
+		this.album = album;
+		this.ext = ext;
+
+		var song = this;
+		this.elem =
+		/*	Elem("li")
+			.append("span")
+				.text(num === 0 ? "" : num)
+				.className("num")
+				.end()
+			.append("span")
+				.text(name)
+				.className("name")
+				.end()
+			.on("dblclick", function() {
+				startPlaying(song);
+			})
+			.pass(makeExpandable)
+			.done();
+		/*/
+		  Elem("li")
+			.append(Elem("span").text(num === 0 ? "" : num).className("num"))
+			.append(Elem("span").text(name).className("name"))
+			.on("dblclick", function() {
+				startPlaying(song);
+			})
+			.pass(makeExpandable)
+			.done();
+		//*/
+	}
+	Song.prototype.URL = function() {
+		if (this.num === 0) {
+			return window.location.origin + "/" + makeUrl("music", this.artist.name, this.name + "." + this.ext);
+		} else {
+			return window.location.origin + "/" + makeUrl("music", this.artist.name, this.album.name, this.num + "-" + this.name + "." + this.ext);
+		}
+	};
+	Song.prototype.albumArt = function() {
+		if (this.album.name !== "Unknown Album") {
+			return this.album.coverImg;
+		} else {
+			return "http://casualsuperman.com/images/O_grey.svg";
+		}
+	};
+	function getAlbum(name, artist) {
+		if (name === "Singles") name = "Unknown Album";
+		var album = library.albums.filter(function(album) {
+			return album.name === name && album.artist === artist;
+		});
+		if (album.length === 0) {
+			album = new Album(name, artist)
+			library.albums.push(album);
+			artist.albums.push(album);
+		} else {
+			album = album[0];
+		}
+		return album;
+	}
+
+	function getArtist(name) {
+		var artist = library.artists.filter(function(artist) {
+			return artist.name === name;
+		});
+		if (artist.length === 0) {
+			artist = new Artist(name)
+			library.artists.push(artist);
+		} else {
+			artist = artist[0];
+		}
+		return artist;
+	}
+
+	function sortByAttr(attr) {
+		return function(a, b) {
+			a = a[attr];
+			b = b[attr]
+			if (a > b) {
+				return 1;
+			} else if (a < b) {
+				return -1;
+			}
+			return 0;
+		}
+	}
+
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "music.txt");
+	xhr.onreadystatechange = function() {
+		if (xhr.readyState === XMLHttpRequest.DONE) {
+			loadLibrary(xhr.responseText);
+		}
+	};
+	xhr.send();
+
+	function loadLibrary(result) {
+		var songs = result.split("\n");
+		//console.profile("Elem - Nested");
+		songs.forEach(function(song) {
+			if (song === "") return;
+			var parts = song.split("/");
+			parts = parts.map(function(str) {
+				str = str.replace("%2F", "/");
+				str = str.replace("%%", "%");
+				return str;
+			});
+			var artist = parts[2];
+			var album;
+			var songUrl;
+			if (parts.length === 5) {
+				album = parts[3];
+				songUrl = parts[4];
+			} else {
+				album = "Singles";
+				songUrl = parts[3];
+			}
+			var songName = "";
+			var songNum = 0;
+			if (album !== "Singles") {
+				var songSplit = songUrl.indexOf("-");
+				songNum = songUrl.substr(0, songSplit);
+				songUrl = songUrl.slice(songSplit+1);
+			}
+			var songSplit = songUrl.lastIndexOf(".");
+			var ext = songUrl.substr(songSplit + 1);
+			var songName = songUrl.substr(0, songSplit);
+
+			var artist = getArtist(artist);
+			var album = getAlbum(album, artist);
+
+			library.songs.push(new Song(songNum, songName, artist, album, ext));
+		});
+		//console.profileEnd();
+
+		[trackCont, albumCont, artistCont].forEach(function(elem) {
+			elem.style.display = "none";
+		});
+
+		trackCont.classList.add("listAll");
+		library.songs = library.songs.sort(sortByAttr("name"));
+		library.songs.forEach(function(song) {
+			trackCont.appendChild(song.elem);
+		});
+
+		library.albums.reverse();
+		library.albums.forEach(function(album) {
+			album.songs = album.songs.sort(sortByAttr("num"));
+			albumCont.appendChild(album.elem);
+		});
+
+		library.artists = library.artists.sort(sortByAttr("name"));
+		library.artists.forEach(function(artist) {
+			artistCont.appendChild(artist.elem);
+		});
+
+		[trackCont, albumCont, artistCont].forEach(function(elem) {
+			elem.style.display = "";
+		});
+
+		nowPlaying.playlist = library.songs;
+		nowPlaying.song = getSongByIndex(0);
+		audio.src = nowPlaying.song.URL();
+		var handler = (function() {
+			audio.removeEventListener("loadedmetadata", handler);
+			updateNowPlaying();
+		});
+		audio.addEventListener("loadedmetadata", handler);
+		nowPlayingInfo.coverImg.src = nowPlaying.song.albumArt();
+		nowPlayingInfo.trackName.textContent = nowPlaying.song.name;
+		nowPlaying.song.elem.classList.add("playing");
+	}
+	</script>
+</body>
+</html>
